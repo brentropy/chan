@@ -4,7 +4,7 @@
   "description": "A go style channel implementation that works nicely with co",
   "main": "chan.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin"
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/brentburgoyne/chan/issues"
   },
-  "homepage": "https://github.com/brentburgoyne/chan"
+  "homepage": "https://github.com/brentburgoyne/chan",
+  "devDependencies": {
+    "mocha": "~1.14.0",
+    "expect.js": "~0.2.0"
+  }
 }
