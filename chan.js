@@ -1,26 +1,21 @@
 'use strict';
 
-var call
-  , arg
-  , make;
+module.exports = make;
 
-call = function(value, cb) {
+function call(value, cb) {
   if (value instanceof Error) {
     cb(value);
   } else {
     cb(null, value);
   }
-};
+}
 
-arg = function(args) {
-  var i = 0;
-  if (args[0] === null && args.length > 1) {
-    i = 1;
-  }
-  return args[i];
-};
+function arg(args) {
+  if (null == args[0] && args.length > 1) return args[1];
+  return args[0];
+}
 
-make = function() {
+function make() {
   var items  = []
     , queue  = [];
   return function(cb) {
@@ -38,6 +33,4 @@ make = function() {
       }
     }
   };
-};
-
-module.exports = make;
+}
