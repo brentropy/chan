@@ -1,6 +1,6 @@
 {
   "name": "chan",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A go style channel implementation that works nicely with co",
   "main": "chan.js",
   "scripts": {
@@ -18,6 +18,14 @@
     "generator"
   ],
   "author": "Brent Burgoyne",
+  "contributors": [
+    {
+      "name": "Brent Burgoyne"
+    },
+    {
+      "name": "TJ Holowaychuk",
+      "email": "tj@vision-media.ca"
+    }
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/brentburgoyne/chan/issues"
