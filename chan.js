@@ -1,36 +1,60 @@
-'use strict';
+
+/**
+ * Expose `make()`.
+ */
 
 module.exports = make;
 
-function call(value, cb) {
-  if (value instanceof Error) {
-    cb(value);
-  } else {
-    cb(null, value);
+/**
+ * Make a channel.
+ *
+ * @return {Function}
+ * @api public
+ */
+
+function make() {
+  var chan = new Channel;
+
+  return function(a, b) {
+    // yielded
+    if ('function' == typeof a) {
+      chan.get(a);
+      return;
+    }
+
+    // (err, res)
+    if (null == a && null != b) a = b;
+
+    // value
+    chan.add(a);
   }
 }
 
-function arg(args) {
-  if (null == args[0] && args.length > 1) return args[1];
-  return args[0];
+function Channel() {
+  this.queue = [];
+  this.items = [];
 }
 
-function make() {
-  var items  = []
-    , queue  = [];
-  return function(cb) {
-    if (typeof cb !== 'function') {
-      if (queue.length > 0) {
-        call(arg(arguments), queue.shift());
-      } else {
-        items.push(arg(arguments));
-      }
-    } else {
-      if (items.length > 0) {
-        call(items.shift(), cb);
-      } else {
-        queue.push(cb);
-      }
-    }
-  };
-}
+Channel.prototype.get = function(cb){
+  if (this.items.length) {
+    cb(null, this.items.pop());
+  } else {
+    this.queue.push(cb);
+  }
+};
+
+Channel.prototype.add = function(val){
+  if (this.queue.length) {
+    this.call(this.queue.pop(), val);
+  } else {
+    this.items.push(val);
+  }
+};
+
+Channel.prototype.call = function(cb, val){
+  if (val instanceof Error) {
+    cb(val);
+  } else {
+    cb(null, val);
+  }
+};
