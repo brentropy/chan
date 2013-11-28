@@ -72,8 +72,9 @@ Channel.prototype.add = function(val){
 };
 
 /**
- * Invoke `cb` with `val` to
- * handle errors properly.
+ * Invoke `cb` with `val` facilitate both
+ * `chan(value)` and the `chan(error, value)`
+ * use-cases.
  *
  * @param {Function} cb
  * @param {Mixed} val
