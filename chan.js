@@ -1,43 +1,90 @@
-'use strict';
 
-var call
-  , arg
-  , make;
-
-call = function(value, cb) {
-  if (value instanceof Error) {
-    cb(value);
-  } else {
-    cb(null, value);
-  }
-};
-
-arg = function(args) {
-  var i = 0;
-  if (args[0] === null && args.length > 1) {
-    i = 1;
-  }
-  return args[i];
-};
-
-make = function() {
-  var items  = []
-    , queue  = [];
-  return function(cb) {
-    if (typeof cb !== 'function') {
-      if (queue.length > 0) {
-        call(arg(arguments), queue.shift());
-      } else {
-        items.push(arg(arguments));
-      }
-    } else {
-      if (items.length > 0) {
-        call(items.shift(), cb);
-      } else {
-        queue.push(cb);
-      }
-    }
-  };
-};
+/**
+ * Expose `make()`.
+ */
 
 module.exports = make;
+
+/**
+ * Make a channel.
+ *
+ * @return {Function}
+ * @api public
+ */
+
+function make() {
+  var chan = new Channel;
+
+  return function(a, b) {
+    // yielded
+    if ('function' == typeof a) {
+      chan.get(a);
+      return;
+    }
+
+    // (err, res)
+    if (null == a && null != b) a = b;
+
+    // value
+    chan.add(a);
+  }
+}
+
+/**
+ * Initialize a `Channel`.
+ *
+ * @api public
+ */
+
+function Channel() {
+  this.queue = [];
+  this.items = [];
+}
+
+/**
+ * Get an item with `cb`.
+ *
+ * @param {Function} cb
+ * @api private
+ */
+
+Channel.prototype.get = function(cb){
+  if (this.items.length) {
+    cb(null, this.items.pop());
+  } else {
+    this.queue.push(cb);
+  }
+};
+
+/**
+ * Add `val` to the channel.
+ *
+ * @param {Mixed} val
+ * @api private
+ */
+
+Channel.prototype.add = function(val){
+  if (this.queue.length) {
+    this.call(this.queue.pop(), val);
+  } else {
+    this.items.push(val);
+  }
+};
+
+/**
+ * Invoke `cb` with `val` facilitate both
+ * `chan(value)` and the `chan(error, value)`
+ * use-cases.
+ *
+ * @param {Function} cb
+ * @param {Mixed} val
+ * @api private
+ */
+
+Channel.prototype.call = function(cb, val){
+  if (val instanceof Error) {
+    cb(val);
+  } else {
+    cb(null, val);
+  }
+};
