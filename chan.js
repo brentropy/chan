@@ -30,10 +30,23 @@ function make() {
   }
 }
 
+/**
+ * Initialize a `Channel`.
+ *
+ * @api public
+ */
+
 function Channel() {
   this.queue = [];
   this.items = [];
 }
+
+/**
+ * Get an item with `cb`.
+ *
+ * @param {Function} cb
+ * @api private
+ */
 
 Channel.prototype.get = function(cb){
   if (this.items.length) {
@@ -43,6 +56,13 @@ Channel.prototype.get = function(cb){
   }
 };
 
+/**
+ * Add `val` to the channel.
+ *
+ * @param {Mixed} val
+ * @api private
+ */
+
 Channel.prototype.add = function(val){
   if (this.queue.length) {
     this.call(this.queue.pop(), val);
@@ -50,6 +70,15 @@ Channel.prototype.add = function(val){
     this.items.push(val);
   }
 };
+
+/**
+ * Invoke `cb` with `val` to
+ * handle errors properly.
+ *
+ * @param {Function} cb
+ * @param {Mixed} val
+ * @api private
+ */
 
 Channel.prototype.call = function(cb, val){
   if (val instanceof Error) {
