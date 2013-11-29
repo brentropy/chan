@@ -1,11 +1,13 @@
+// jshint esnext:true
+'use strict';
 
-var chan = require('../chan');
-var co = require('co');
-var fs = require('fs');
+var chan = require('../chan')
+  , co   = require('co')
+  , fs   = require('fs');
 
-co(function *(){
+co(function *() {
   var ch = chan();
-
+  
   fs.readFile('something', ch);
 
   try {
