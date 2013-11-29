@@ -50,7 +50,7 @@ Channel = function Channel() {
 
 Channel.prototype.get = function(cb){
   if (this.items.length > 0) {
-    cb(null, this.items.pop());
+    this.call(cb, this.items.pop());
   } else {
     this.queue.push(cb);
   }
