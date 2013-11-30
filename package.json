@@ -1,6 +1,6 @@
 {
   "name": "chan",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A go style channel implementation that works nicely with co",
   "main": "chan.js",
   "scripts": {

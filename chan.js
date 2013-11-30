@@ -11,9 +11,10 @@ var make
  */
 
 make = function make() {
-  var chan = new Channel();
+  var chan = new Channel()
+    , func;
 
-  return function(a, b) {
+  func = function(a, b) {
     // yielded
     if (typeof a === 'function') {
       chan.get(a);
@@ -26,8 +27,16 @@ make = function make() {
     }
 
     // value
-    chan.add(a);
+    return chan.add(a);
   };
+
+  // expose Channel.protoptype.close
+  func.close = chan.close.bind(chan);
+
+  // expose Channel.protoptype.done
+  func.done = chan.done.bind(chan);
+
+  return func;
 };
 
 /**
@@ -37,8 +46,10 @@ make = function make() {
  */
 
 Channel = function Channel() {
-  this.queue = [];
-  this.items = [];
+  this.queue    = [];
+  this.items    = [];
+  this.isClosed = false;
+  this.isDone   = false;
 };
 
 /**
@@ -64,6 +75,9 @@ Channel.prototype.get = function(cb){
  */
 
 Channel.prototype.add = function(val){
+  if (this.isClosed) {
+    throw new Error('Cannot add to closed channel');
+  }
   if (this.queue.length > 0) {
     this.call(this.queue.pop(), val);
   } else {
@@ -87,6 +101,38 @@ Channel.prototype.call = function(cb, val){
   } else {
     cb(null, val);
   }
+  this.done();
+};
+
+/**
+ * Prevennt future values from being added to
+ * the channel.
+ *
+ * @api private
+ */
+
+Channel.prototype.close = function() {
+  this.isClosed = true;
+  return this.done();
+};
+
+/**
+ * Check to see if the channel is done and
+ * call pending callbacks if necessary.
+ *
+ * @return {Boolean}
+ * @api private
+ */
+
+Channel.prototype.done = function() {
+  var _this = this;
+  if (!this.isDone && this.isClosed && this.items.length === 0) {
+    this.isDone = true;
+    this.queue.forEach(function(cb) {
+      _this.call(cb, void 0);
+    });
+  }
+  return this.isDone;
 };
 
 /**
