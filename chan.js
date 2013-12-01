@@ -22,7 +22,7 @@ make = function make() {
     }
 
     // (err, res)
-    if (a === null) {
+    if (a === null && typeof b !== 'undefined') {
       a = b;
     }
 
@@ -61,7 +61,7 @@ Channel = function Channel() {
 
 Channel.prototype.get = function(cb){
   if (this.items.length > 0) {
-    this.call(cb, this.items.pop());
+    this.call(cb, this.items.shift());
   } else {
     this.queue.push(cb);
   }
@@ -79,7 +79,7 @@ Channel.prototype.add = function(val){
     throw new Error('Cannot add to closed channel');
   }
   if (this.queue.length > 0) {
-    this.call(this.queue.pop(), val);
+    this.call(this.queue.shift(), val);
   } else {
     this.items.push(val);
   }
