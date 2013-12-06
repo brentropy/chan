@@ -7,14 +7,18 @@ var chan = require('../chan')
   , ch   = chan();
 
 co(function *() {
+  var val;
   while (!ch.done()) {
-    console.log(yield ch);
+    val = yield ch;
+    if (val !== ch.empty) {
+      console.log(val);
+    }
   }
   console.log('Done!');
 })();
 
 co(function *() {
-  var n = 50;
+  var n = 10;
   
   while (n-- > 0) {
     yield wait(100);
@@ -24,7 +28,7 @@ co(function *() {
       console.log(err.message);
     }
 
-    if (n === 25) {
+    if (n === 5) {
       ch.close();
     }
   }
