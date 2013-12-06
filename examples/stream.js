@@ -12,10 +12,15 @@ co(function *() {
   fs.createReadStream(__dirname + '/../README.markdown')
     .pipe(split())
     .on('data',  ch)
+    .on('error', ch)
     .on('end',   ch.close);
 
   while (!ch.done()) {
-    console.log('Stream yielded: ' + String(yield ch));
+    try {
+      console.log('Stream yielded: ' + String(yield ch));
+    } catch(err) {
+      console.log('Stream error:' + err.message);
+    }
   }
 
   console.log('Stream ended');
