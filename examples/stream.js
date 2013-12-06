@@ -7,7 +7,7 @@ var fs    = require('fs')
   , split = require('split');
 
 co(function *() {
-  var ch = chan(String);
+  var ch = chan(new Buffer(0));
 
   fs.createReadStream(__dirname + '/../README.markdown')
     .pipe(split())
