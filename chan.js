@@ -6,13 +6,13 @@ var make
 /**
  * Make a channel.
  *
- * @param {Function} [Type=Object]
+ * @param {Function|Object} [empty]
  * @return {Function}
  * @api public
  */
 
-make = function make(Type) {
-  var chan = new Channel(Type)
+make = function make(empty) {
+  var chan = new Channel(empty)
     , func;
 
   func = function(a, b) {
@@ -46,16 +46,24 @@ make = function make(Type) {
 /**
  * Initialize a `Channel`.
  *
+ * @param {Function|Object} [empty=Object]
  * @api priate
  */
 
-Channel = function Channel(Type) {
+Channel = function Channel(empty) {
+  var EmptyCtor;
+  
   this.queue    = [];
   this.items    = [];
   this.isClosed = false;
   this.isDone   = false;
-  this.Type     = typeof Type === 'function' ? Type : Object;
-  this.empty    = new this.Type();
+  
+  if (typeof empty !== 'object') {
+    EmptyCtor = typeof empty === 'function' ? empty : Object;
+    empty = new EmptyCtor();
+  }
+
+  this.empty    = empty;
 };
 
 /**
