@@ -6,12 +6,13 @@ var make
 /**
  * Make a channel.
  *
+ * @param {Function} [Type=Object]
  * @return {Function}
  * @api public
  */
 
-make = function make() {
-  var chan = new Channel()
+make = function make(Type) {
+  var chan = new Channel(Type)
     , func;
 
   func = function(a, b) {
@@ -36,6 +37,9 @@ make = function make() {
   // expose Channel.protoptype.done
   func.done = chan.done.bind(chan);
 
+  // expose empty value
+  func.empty = chan.empty;
+
   return func;
 };
 
@@ -45,11 +49,13 @@ make = function make() {
  * @api priate
  */
 
-Channel = function Channel() {
+Channel = function Channel(Type) {
   this.queue    = [];
   this.items    = [];
   this.isClosed = false;
   this.isDone   = false;
+  this.Type     = typeof Type === 'function' ? Type : Object;
+  this.empty    = new this.Type();
 };
 
 /**
@@ -60,7 +66,9 @@ Channel = function Channel() {
  */
 
 Channel.prototype.get = function(cb){
-  if (this.items.length > 0) {
+  if (this.done()) {
+    this.callEmpty(cb);
+  } else if (this.items.length > 0) {
     this.call(cb, this.items.shift());
   } else {
     this.queue.push(cb);
@@ -77,8 +85,7 @@ Channel.prototype.get = function(cb){
 Channel.prototype.add = function(val){
   if (this.isClosed) {
     throw new Error('Cannot add to closed channel');
-  }
-  if (this.queue.length > 0) {
+  } else if (this.queue.length > 0) {
     this.call(this.queue.shift(), val);
   } else {
     this.items.push(val);
@@ -105,6 +112,17 @@ Channel.prototype.call = function(cb, val){
 };
 
 /**
+ * Invoke `cb` callback with the empty value.
+ *
+ * @param {Function} cb
+ * @api private
+ */
+
+Channel.prototype.callEmpty = function(cb) {
+  this.call(cb, this.empty);
+};
+
+/**
  * Prevennt future values from being added to
  * the channel.
  *
@@ -125,12 +143,14 @@ Channel.prototype.close = function() {
  */
 
 Channel.prototype.done = function() {
-  var _this = this;
   if (!this.isDone && this.isClosed && this.items.length === 0) {
     this.isDone = true;
-    this.queue.forEach(function(cb) {
-      _this.call(cb, void 0);
-    });
+    this.queue.forEach(
+      function(cb) {
+        this.callEmpty(cb);
+      },
+      this
+    );
   }
   return this.isDone;
 };
