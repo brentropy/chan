@@ -15,6 +15,23 @@ describe('Channel make', function() {
     }
   );
 
+  it(
+    'should optionally accept a constructor to be used for the empty value',
+    function() {
+      var ctors = [
+        Object,
+        Array,
+        String,
+        Number,
+        Function,
+        RegExp
+      ];
+      ctors.forEach(function(Ctor) {
+        expect(chan(Ctor).empty).to.be.a(Ctor);
+      });
+    }
+  );
+
 });
 
 describe('A channel', function() {
