@@ -6,14 +6,16 @@ var make
 /**
  * Make a channel.
  *
+ * @param {Function|Object} [empty]
  * @return {Function}
  * @api public
  */
 
-make = function make() {
-  var chan = new Channel();
+make = function make(empty) {
+  var chan = new Channel(empty)
+    , func;
 
-  return function(a, b) {
+  func = function(a, b) {
     // yielded
     if (typeof a === 'function') {
       chan.get(a);
@@ -26,19 +28,42 @@ make = function make() {
     }
 
     // value
-    chan.add(a);
+    return chan.add(a);
   };
+
+  // expose Channel.protoptype.close
+  func.close = chan.close.bind(chan);
+
+  // expose Channel.protoptype.done
+  func.done = chan.done.bind(chan);
+
+  // expose empty value
+  func.empty = chan.empty;
+
+  return func;
 };
 
 /**
  * Initialize a `Channel`.
  *
+ * @param {Function|Object} [empty=Object]
  * @api priate
  */
 
-Channel = function Channel() {
-  this.queue = [];
-  this.items = [];
+Channel = function Channel(empty) {
+  var EmptyCtor;
+  
+  this.queue    = [];
+  this.items    = [];
+  this.isClosed = false;
+  this.isDone   = false;
+  
+  if (typeof empty !== 'object') {
+    EmptyCtor = typeof empty === 'function' ? empty : Object;
+    empty = new EmptyCtor();
+  }
+
+  this.empty    = empty;
 };
 
 /**
@@ -49,7 +74,9 @@ Channel = function Channel() {
  */
 
 Channel.prototype.get = function(cb){
-  if (this.items.length > 0) {
+  if (this.done()) {
+    this.callEmpty(cb);
+  } else if (this.items.length > 0) {
     this.call(cb, this.items.shift());
   } else {
     this.queue.push(cb);
@@ -64,7 +91,9 @@ Channel.prototype.get = function(cb){
  */
 
 Channel.prototype.add = function(val){
-  if (this.queue.length > 0) {
+  if (this.isClosed) {
+    throw new Error('Cannot add to closed channel');
+  } else if (this.queue.length > 0) {
     this.call(this.queue.shift(), val);
   } else {
     this.items.push(val);
@@ -87,6 +116,51 @@ Channel.prototype.call = function(cb, val){
   } else {
     cb(null, val);
   }
+  this.done();
+};
+
+/**
+ * Invoke `cb` callback with the empty value.
+ *
+ * @param {Function} cb
+ * @api private
+ */
+
+Channel.prototype.callEmpty = function(cb) {
+  this.call(cb, this.empty);
+};
+
+/**
+ * Prevennt future values from being added to
+ * the channel.
+ *
+ * @api private
+ */
+
+Channel.prototype.close = function() {
+  this.isClosed = true;
+  return this.done();
+};
+
+/**
+ * Check to see if the channel is done and
+ * call pending callbacks if necessary.
+ *
+ * @return {Boolean}
+ * @api private
+ */
+
+Channel.prototype.done = function() {
+  if (!this.isDone && this.isClosed && this.items.length === 0) {
+    this.isDone = true;
+    this.queue.forEach(
+      function(cb) {
+        this.callEmpty(cb);
+      },
+      this
+    );
+  }
+  return this.isDone;
 };
 
 /**

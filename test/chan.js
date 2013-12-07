@@ -15,6 +15,56 @@ describe('Channel make', function() {
     }
   );
 
+  it(
+    'should optionally accept a constructor to be used for the empty value',
+    function() {
+      var ctors = [
+        Object,
+        Array,
+        String,
+        Number,
+        Function,
+        RegExp
+      ];
+      ctors.forEach(function(Ctor) {
+        expect(chan(Ctor).empty).to.be.a(Ctor);
+      });
+    }
+  );
+
+  it(
+    'should optionally accept an object to be used for the empty value',
+    function() {
+      var objects = [
+        {},
+        [],
+        new Buffer(0)
+      ];
+      objects.forEach(function(object) {
+        expect(chan(object).empty).to.be(object);
+      });
+    }
+  );
+
+  it(
+    'should not use a primitive for the empty value',
+    function() {
+      var primitives = [
+        undefined,
+        null,
+        true,
+        false,
+        4.7,
+        47,
+        'foo',
+        NaN
+      ];
+      primitives.forEach(function(primitive) {
+        expect(chan(primitive)).not.to.be(primitive);
+      });
+    }
+  );
+
 });
 
 describe('A channel', function() {
