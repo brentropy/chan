@@ -1,7 +1,8 @@
 'use strict';
 
 var make
-  , Channel;
+  , Channel
+  , selectors = [];   // selectors waiting for channel activity
 
 /**
  * Make a channel.
@@ -39,6 +40,9 @@ make = function make(empty) {
 
   // expose empty value
   func.empty = chan.empty;
+
+  // save a reference to the channel
+  func.__chan = chan;
 
   return func;
 };
@@ -95,8 +99,10 @@ Channel.prototype.add = function(val){
     throw new Error('Cannot add to closed channel');
   } else if (this.queue.length > 0) {
     this.call(this.queue.shift(), val);
+    notifySelectors(this);
   } else {
     this.items.push(val);
+    notifySelectors(this);
   }
 };
 
@@ -160,6 +166,7 @@ Channel.prototype.done = function() {
       this
     );
   }
+
   return this.isDone;
 };
 
@@ -169,3 +176,58 @@ Channel.prototype.done = function() {
 
 module.exports = make;
 
+/**
+ * Wait for activity on a list of channels.
+ *
+ * @param {channel[]} channels
+ * @api public
+ */
+
+module.exports.select = select;
+function select(channels) {
+  return function(cb) {
+    selectors.push({ channels: channels, cb: cb });
+    // check to see if there are any waiting messages
+    channels.some(function (ch) {
+      var channel = ch.__chan;
+      return !channel.isDone && channel.items.length &&
+        notifySelectors(channel);
+    });
+  };
+}
+
+/**
+ * Notify anyone waiting on a select()
+ *
+ * @api private
+ */
+
+function notifySelectors(ch) {
+  selectors.forEach(function (selector, pos) {
+    // is this selector waiting for this channel?
+    var selectorHasChannel = selector.channels.some(
+      function (func) {
+        return ch === func.__chan;
+      });
+    if (selectorHasChannel) {
+      // find the channels with items ready
+      var hits = selector.channels.filter(function (func) {
+        var channel = func.__chan;
+        return !channel.isDone && channel.items.length;
+      });
+
+      if (hits.length) {
+        var idx = 0;
+        // if multiple ready channels, then pick a channel at random
+        if (hits.length > 1) {
+          idx = Math.floor(Math.random() * hits.length);
+        }
+
+        // remove selector from notification list
+        selectors.splice(pos, 1);
+        selector.cb(null, hits[idx]);
+        return true;
+      }
+    }
+  });
+}
