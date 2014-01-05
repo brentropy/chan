@@ -95,7 +95,6 @@ Channel = function Channel(empty) {
   this.items    = [];
   this.isClosed = false;
   this.isDone   = false;
-  this.nextVal  = null;
   
   if (typeof empty !== 'object') {
     EmptyCtor = typeof empty === 'function' ? empty : Object;
