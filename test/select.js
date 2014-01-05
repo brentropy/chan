@@ -122,7 +122,7 @@ describe('Channel select', function() {
   );
 
   it (
-    'should wait for previously queued callbacks befor selecting',
+    'should wait for previously queued callbacks before selecting',
     function(done) {
       var ch1 = chan()
         , ch2 = chan();

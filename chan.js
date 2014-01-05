@@ -38,7 +38,7 @@ make = function make(empty) {
   // expose empty value
   func.empty  = chan.empty;
   
-  // store circular reference to the channel object for internal use
+  // cross reference the channel object and function for internal use
   func.__chan = chan;
   chan.func   = func;
 
@@ -66,7 +66,6 @@ make.select = function select(/*channels...*/) {
     };
 
     // added the selected channel to the select channel
-    debugger;
     selectCh(null, ch);
     selectCh.close();
   };
@@ -167,7 +166,7 @@ Channel.prototype.add = function(val){
 Channel.prototype.call = function(cb, val) {
   lastCalled = this.func;
   if (val instanceof Error) {
-    cb(val, null);
+    cb(val);
   } else {
     cb(null, val);
   }
