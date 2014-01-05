@@ -1,4 +1,5 @@
-/* global describe:true, beforeEach:true, it:true */
+/* jshint loopfunc:true */
+/* global describe:true, beforeEach:true, afterEach:true, it:true */
 'use strict';
 
 var chan   = require('../chan')
@@ -23,9 +24,9 @@ describe('Channel select', function() {
     function(done) {
       var ch1 = chan(),
           ch2 = chan();
-      chan.select([ch1, ch2])(function (err, ch) {
+      chan.select(ch1, ch2)(function (err, ch) {
         expect(ch).to.equal(ch2);
-        ch2(function (err, val) {
+        ch2.selected(function (err, val) {
           expect(val).to.equal(42);
           done();
         });
@@ -40,11 +41,13 @@ describe('Channel select', function() {
       var chs = [chan(), chan()];
       var remaining = chs.length;
       chs.forEach(function (needle, i) {
-        chan.select(chs)(function (err, ch) {
+        chan.select.apply(null, chs)(function (err, ch) {
           expect(ch).to.equal(needle);
-          ch(function (err, val) {
+          ch.selected(function (err, val) {
             expect(val).to.equal(i*10);
-            --remaining || done();
+            if (--remaining === 0) {
+              done();
+            }
           });
         });
       });
@@ -61,11 +64,13 @@ describe('Channel select', function() {
       var remaining = chs.length;
       for (var i = 0; i < 10; i++) {
         (function (i) {
-          chan.select(chs)(function (err, ch) {
+          chan.select.apply(null, chs)(function (err, ch) {
             expect(ch).to.equal(chs[0]);
-            ch(function (err, val) {
+            ch.selected(function (err, val) {
               expect(val).to.equal(i*10);
-              --remaining || done();
+              if (--remaining === 0) {
+                done();
+              }
             });
           });
         })(i);
@@ -82,9 +87,9 @@ describe('Channel select', function() {
       var ch1 = chan(),
           ch2 = chan();
       ch2(42);
-      chan.select([ch1, ch2])(function (err, ch) {
+      chan.select(ch1, ch2)(function (err, ch) {
         expect(ch).to.equal(ch2);
-        ch2(function (err, val) {
+        ch2.selected(function (err, val) {
           expect(val).to.equal(42);
           done();
         });
@@ -93,26 +98,45 @@ describe('Channel select', function() {
   );
 
   it(
-    'should be randomly choose a channel to return when there are multiple full channels',
+    'should randomly choose a channel to return with multiple full channels',
     function(done) {
       var ch1 = chan(),
           ch2 = chan();
 
       // force the random selection to be the second channel
-      Math.random = function () { return 0.5; }
+      Math.random = function () { return 0.5; };
 
       // fill up both the channels
       ch1(21);
       ch2(42);
 
       // random selection should choose the second channel "randomly"
-      chan.select([ch1, ch2])(function (err, ch) {
+      chan.select(ch1, ch2)(function (err, ch) {
         expect(ch).to.equal(ch2);
-        ch2(function (err, val) {
+        ch2.selected(function (err, val) {
           expect(val).to.equal(42);
           done();
         });
       });
+    }
+  );
+
+  it (
+    'should wait for previously queued callbacks befor selecting',
+    function(done) {
+      var ch1 = chan()
+        , ch2 = chan();
+
+      // queue a callback for ch1
+      ch1(function() {});
+
+      chan.select(ch1, ch2)(function(err, ch) {
+        expect(ch).to.be(ch2);
+        done();
+      });
+
+      ch1(74);
+      ch2(47);
     }
   );
 });

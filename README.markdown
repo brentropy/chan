@@ -39,7 +39,6 @@ co(function *() {
 You can also wait for a message to be ready on multiple channels (the golang equivalent of the `select` statement:
 
 ``` javascript
-// require the dependencies
 var chan = require('chan')
   , co   = require('co');
 
@@ -51,20 +50,18 @@ co(function *() {
   // will block until there is data on either ch1 or ch2,
   // and will return the channel with data
   // if data is on both channels, a channel will be selected at random
-  var first = yield chan.select([ch1, ch2]);
-  switch (first) {
+  switch (yield chan.select(ch1, ch2)) {
+    
     // channel 1 received data
     case ch1:
-      // retrieve the message from the channel
-      var val1 = yield ch1;
-      console.log(val1);
+      // retrieve the message yielded by the channel
+      console.log(yield ch1.selected);
       break;
 
-    // channel 1 received data
+    // channel 2 received data
     case ch2:
-      // retrieve the message from the channel
-      var val2 = yield ch2;
-      console.log(val2);
+      // retrieve the message yielded by the channel
+      console.log(yield ch2.selected);
       break;
   }
 })();

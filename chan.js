@@ -2,7 +2,7 @@
 
 var make
   , Channel
-  , selectors = [];   // selectors waiting for channel activity
+  , lastCalled;
 
 /**
  * Make a channel.
@@ -19,8 +19,7 @@ make = function make(empty) {
   func = function(a, b) {
     // yielded
     if (typeof a === 'function') {
-      chan.get(a);
-      return;
+      return chan.get(a);
     }
 
     // (err, res)
@@ -32,19 +31,55 @@ make = function make(empty) {
     return chan.add(a);
   };
 
-  // expose Channel.protoptype.close
+  // expose public channel methods
   func.close = chan.close.bind(chan);
-
-  // expose Channel.protoptype.done
-  func.done = chan.done.bind(chan);
+  func.done  = chan.done.bind(chan);
 
   // expose empty value
-  func.empty = chan.empty;
-
-  // save a reference to the channel
+  func.empty  = chan.empty;
+  
+  // store circular reference to the channel object for internal use
   func.__chan = chan;
+  chan.func   = func;
 
   return func;
+};
+
+make.select = function select(/*channels...*/) {
+  var selectCh = make()
+    , chans = [].slice.call(arguments, 0)
+    , full = chans.filter(function(ch) { return ch.__chan.items.length > 0; })
+    , get;
+
+  // define get callback
+  get = function(err, value) {
+    var args = arguments
+      , ch   = lastCalled;
+
+    // remove get callback from all selected channels
+    chans.forEach(function(ch) { ch.__chan.removeGet(get); });
+
+    // add temporary selected yieldable function
+    ch.selected = function(cb) {
+      delete ch.selected;
+      cb.apply(null, args);
+    };
+
+    // added the selected channel to the select channel
+    debugger;
+    selectCh(null, ch);
+    selectCh.close();
+  };
+
+  if (full.length > 1) {
+    // multiple channels with waiting values, pick one at random
+    full[Math.floor(Math.random() * full.length)](get);
+  } else {
+    // add get callback to all channels
+    chans.forEach(function(ch) { ch(get); });
+  }
+
+  return selectCh;
 };
 
 /**
@@ -61,13 +96,14 @@ Channel = function Channel(empty) {
   this.items    = [];
   this.isClosed = false;
   this.isDone   = false;
+  this.nextVal  = null;
   
   if (typeof empty !== 'object') {
     EmptyCtor = typeof empty === 'function' ? empty : Object;
     empty = new EmptyCtor();
   }
 
-  this.empty    = empty;
+  this.empty = empty;
 };
 
 /**
@@ -88,6 +124,20 @@ Channel.prototype.get = function(cb){
 };
 
 /**
+ * Remove `cb` from the queue.
+ *
+ * @param {Function} cb
+ * @api private
+ */
+
+Channel.prototype.removeGet = function(cb) {
+  var idx = this.queue.indexOf(cb);
+  if (idx > -1) {
+    this.queue.splice(idx, 1);
+  }
+};
+
+/**
  * Add `val` to the channel.
  *
  * @param {Mixed} val
@@ -99,10 +149,8 @@ Channel.prototype.add = function(val){
     throw new Error('Cannot add to closed channel');
   } else if (this.queue.length > 0) {
     this.call(this.queue.shift(), val);
-    notifySelectors(this);
   } else {
     this.items.push(val);
-    notifySelectors(this);
   }
 };
 
@@ -116,9 +164,10 @@ Channel.prototype.add = function(val){
  * @api private
  */
 
-Channel.prototype.call = function(cb, val){
+Channel.prototype.call = function(cb, val) {
+  lastCalled = this.func;
   if (val instanceof Error) {
-    cb(val);
+    cb(val, null);
   } else {
     cb(null, val);
   }
@@ -140,7 +189,8 @@ Channel.prototype.callEmpty = function(cb) {
  * Prevennt future values from being added to
  * the channel.
  *
- * @api private
+ * @return {Boolean}
+ * @api public
  */
 
 Channel.prototype.close = function() {
@@ -159,12 +209,8 @@ Channel.prototype.close = function() {
 Channel.prototype.done = function() {
   if (!this.isDone && this.isClosed && this.items.length === 0) {
     this.isDone = true;
-    this.queue.forEach(
-      function(cb) {
-        this.callEmpty(cb);
-      },
-      this
-    );
+    // call each pending callback with the empty value
+    this.queue.forEach(function(cb) { this.callEmpty(cb); }, this);
   }
 
   return this.isDone;
@@ -176,58 +222,3 @@ Channel.prototype.done = function() {
 
 module.exports = make;
 
-/**
- * Wait for activity on a list of channels.
- *
- * @param {channel[]} channels
- * @api public
- */
-
-module.exports.select = select;
-function select(channels) {
-  return function(cb) {
-    selectors.push({ channels: channels, cb: cb });
-    // check to see if there are any waiting messages
-    channels.some(function (ch) {
-      var channel = ch.__chan;
-      return !channel.isDone && channel.items.length &&
-        notifySelectors(channel);
-    });
-  };
-}
-
-/**
- * Notify anyone waiting on a select()
- *
- * @api private
- */
-
-function notifySelectors(ch) {
-  selectors.forEach(function (selector, pos) {
-    // is this selector waiting for this channel?
-    var selectorHasChannel = selector.channels.some(
-      function (func) {
-        return ch === func.__chan;
-      });
-    if (selectorHasChannel) {
-      // find the channels with items ready
-      var hits = selector.channels.filter(function (func) {
-        var channel = func.__chan;
-        return !channel.isDone && channel.items.length;
-      });
-
-      if (hits.length) {
-        var idx = 0;
-        // if multiple ready channels, then pick a channel at random
-        if (hits.length > 1) {
-          idx = Math.floor(Math.random() * hits.length);
-        }
-
-        // remove selector from notification list
-        selectors.splice(pos, 1);
-        selector.cb(null, hits[idx]);
-        return true;
-      }
-    }
-  });
-}
