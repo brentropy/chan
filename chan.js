@@ -1,7 +1,8 @@
 'use strict';
 
 var make
-  , Channel;
+  , Channel
+  , lastCalled;
 
 /**
  * Make a channel.
@@ -18,8 +19,7 @@ make = function make(empty) {
   func = function(a, b) {
     // yielded
     if (typeof a === 'function') {
-      chan.get(a);
-      return;
+      return chan.get(a);
     }
 
     // (err, res)
@@ -31,16 +31,54 @@ make = function make(empty) {
     return chan.add(a);
   };
 
-  // expose Channel.protoptype.close
+  // expose public channel methods
   func.close = chan.close.bind(chan);
-
-  // expose Channel.protoptype.done
-  func.done = chan.done.bind(chan);
+  func.done  = chan.done.bind(chan);
 
   // expose empty value
-  func.empty = chan.empty;
+  func.empty  = chan.empty;
+  
+  // cross reference the channel object and function for internal use
+  func.__chan = chan;
+  chan.func   = func;
 
   return func;
+};
+
+make.select = function select(/*channels...*/) {
+  var selectCh = make()
+    , chans = [].slice.call(arguments, 0)
+    , full = chans.filter(function(ch) { return ch.__chan.items.length > 0; })
+    , get;
+
+  // define get callback
+  get = function(err, value) {
+    var args = arguments
+      , ch   = lastCalled;
+
+    // remove get callback from all selected channels
+    chans.forEach(function(ch) { ch.__chan.removeGet(get); });
+
+    // add temporary selected yieldable function
+    ch.selected = function(cb) {
+      delete ch.selected;
+      cb.apply(null, args);
+    };
+
+    // added the selected channel to the select channel
+    selectCh(null, ch);
+    selectCh.close();
+  };
+
+  if (full.length > 1) {
+    // multiple channels with waiting values, pick one at random
+    full[Math.floor(Math.random() * full.length)](get);
+  } else {
+    // add get callback to all channels
+    chans.forEach(function(ch) { ch(get); });
+  }
+
+  return selectCh;
 };
 
 /**
@@ -63,7 +101,7 @@ Channel = function Channel(empty) {
     empty = new EmptyCtor();
   }
 
-  this.empty    = empty;
+  this.empty = empty;
 };
 
 /**
@@ -80,6 +118,20 @@ Channel.prototype.get = function(cb){
     this.call(cb, this.items.shift());
   } else {
     this.queue.push(cb);
+  }
+};
+
+/**
+ * Remove `cb` from the queue.
+ *
+ * @param {Function} cb
+ * @api private
+ */
+
+Channel.prototype.removeGet = function(cb) {
+  var idx = this.queue.indexOf(cb);
+  if (idx > -1) {
+    this.queue.splice(idx, 1);
   }
 };
 
@@ -110,7 +162,8 @@ Channel.prototype.add = function(val){
  * @api private
  */
 
-Channel.prototype.call = function(cb, val){
+Channel.prototype.call = function(cb, val) {
+  lastCalled = this.func;
   if (val instanceof Error) {
     cb(val);
   } else {
@@ -134,7 +187,8 @@ Channel.prototype.callEmpty = function(cb) {
  * Prevennt future values from being added to
  * the channel.
  *
- * @api private
+ * @return {Boolean}
+ * @api public
  */
 
 Channel.prototype.close = function() {
@@ -153,13 +207,10 @@ Channel.prototype.close = function() {
 Channel.prototype.done = function() {
   if (!this.isDone && this.isClosed && this.items.length === 0) {
     this.isDone = true;
-    this.queue.forEach(
-      function(cb) {
-        this.callEmpty(cb);
-      },
-      this
-    );
+    // call each pending callback with the empty value
+    this.queue.forEach(function(cb) { this.callEmpty(cb); }, this);
   }
+
   return this.isDone;
 };
 
