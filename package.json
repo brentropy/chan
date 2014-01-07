@@ -25,6 +25,10 @@
     {
       "name": "TJ Holowaychuk",
       "email": "tj@vision-media.ca"
+    },
+    {
+      "name": "Eugene Ware",
+      "email": "eugene@noblesamurai.com"
     }
   ],
   "license": "MIT",
