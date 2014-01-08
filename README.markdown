@@ -2,7 +2,7 @@
 
 A [go](http://golang.org) style channel implementation that works well with [co](https://github.com/visionmedia/co).
 
-[![Build Status](https://travis-ci.org/brentburgoyne/chan.png)](https://travis-ci.org/brentburgoyne/chan)
+[![Build Status](https://travis-ci.org/brentburgoyne/chan.png)](https://travis-ci.org/brentburgoyne/chan) [![Code Climate](https://codeclimate.com/github/brentburgoyne/chan.png)](https://codeclimate.com/github/brentburgoyne/chan) [![Dependency Status](https://gemnasium.com/brentburgoyne/chan.png)](https://gemnasium.com/brentburgoyne/chan)
 
 ## Installation
 
