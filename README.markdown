@@ -2,6 +2,8 @@
 
 A [go](http://golang.org) style channel implementation that works well with [co](https://github.com/visionmedia/co).
 
+[![Build Status](https://travis-ci.org/brentburgoyne/chan.png)](https://travis-ci.org/brentburgoyne/chan)
+
 ## Installation
 
 ```bash
