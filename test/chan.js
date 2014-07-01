@@ -1,29 +1,28 @@
 /* global describe:true, beforeEach:true, it:true */
-'use strict';
 
-var chan   = require('../chan');
-var expect = require('expect.js');
-var fs     = require('fs');
+var chan   = require('../chan')
+var expect = require('expect.js')
+var fs     = require('fs')
 
 describe('Channel make', function() {
 
   it(
     'should return a channel function',
     function() {
-      var ch = chan();
-      expect(ch).to.be.a(Function);
+      var ch = chan()
+      expect(ch).to.be.a(Function)
     }
-  );
+  )
 
-});
+})
 
 describe('A channel', function() {
 
-  var ch;
+  var ch
 
   beforeEach(function() {
-    ch = chan();
-  });
+    ch = chan()
+  })
 
   it(
     'should receive a value of any non-function type as the first argument',
@@ -37,77 +36,77 @@ describe('A channel', function() {
         false,
         null,
         void 0
-      ];
+      ]
       typeCases.forEach(function(val) {
-        ch(val);
+        ch(val)
         ch(function(err, result) {
-          expect(result).to.be(val);
-        });
-      });
+          expect(result).to.be(val)
+        })
+      })
     }
-  );
+  )
 
   it(
     'should receive a function value as a second argument if the first is null',
     function() {
-      ch(null, function() {});
+      ch(null, function() {})
       ch(function(err, result) {
-        expect(result).to.be.a(Function);
-      });
+        expect(result).to.be.a(Function)
+      })
     }
-  );
+  )
 
   it(
     'should queue values until they are yielded/removed',
     function() {
-      var values = [1, 2, 3, 4, 5];
+      var values = [1, 2, 3, 4, 5]
       values.forEach(function(value) {
-        ch(value);
-      });
+        ch(value)
+      })
       values.forEach(function(value) {
         ch(function(err, result) {
-          expect(result).to.be(value);
-        });
-      });
+          expect(result).to.be(value)
+        })
+      })
     }
-  );
+  )
 
   it(
     'should queue callbacks until values are added',
     function() {
-      var values = [1, 2, 3, 4, 5];
+      var values = [1, 2, 3, 4, 5]
       values.forEach(function(value) {
         ch(function(err, result) {
-          expect(result).to.be(value);
-        });
-      });
+          expect(result).to.be(value)
+        })
+      })
       values.forEach(function(value) {
-        ch(value);
-      });
+        ch(value)
+      })
     }
-  );
+  )
 
   it(
     'should pass errors as the first argument to callbacks',
     function() {
-      var e = new Error('Foo');
-      ch(e);
+      var e = new Error('Foo')
+      ch(e)
       ch(function(err) {
-        expect(err).to.be(e);
-      });
+        expect(err).to.be(e)
+      })
     }
-  );
+  )
 
   it(
     'should be useable directly as a callback for node style async functions',
     function(done) {
       ch(function(err, contents) {
-        expect(err).to.be(null);
-        expect(contents).to.be.a(Buffer);
-        done();
-      });
-      fs.readFile(__filename, ch);
+        expect(err).to.be(null)
+        expect(contents).to.be.a(Buffer)
+        done()
+      })
+      fs.readFile(__filename, ch)
     }
-  );
+  )
 
-});
+})

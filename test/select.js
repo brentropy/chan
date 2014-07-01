@@ -1,9 +1,8 @@
 /* jshint loopfunc:true */
 /* global describe:true, beforeEach:true, afterEach:true, it:true */
-'use strict';
 
 var chan   = require('../chan')
-  , expect = require('expect.js');
+var expect = require('expect.js')
 
 describe('Channel select', function() {
   var random;

@@ -1,17 +1,17 @@
-'use strict';
-
 /**
  * Expose `make`.
  */
-module.exports = make;
+module.exports = make
 
 /**
  * Expose `select`.
  */
-module.exports.select = select;
+module.exports.select = select
 
-
-var lastCalled;
+/**
+ * Reference to the last channel that returned a value.
+ */
+var lastCalled
 
 /**
  * Make a channel.
@@ -20,35 +20,35 @@ var lastCalled;
  * @api public
  */
 function make() {
-  var chan = new Channel();
+  var chan = new Channel()
 
   var func = function(a, b) {
     // yielded
     if (typeof a === 'function') {
-      return chan.get(a);
+      return chan.get(a)
     }
 
     // (err, res)
     if (a === null && typeof b !== 'undefined') {
-      a = b;
+      a = b
     }
 
     // value
-    return chan.add(a);
-  };
+    return chan.add(a)
+  }
 
   // expose public channel methods
-  func.close = chan.close.bind(chan);
-  func.done  = chan.done.bind(chan);
+  func.close = chan.close.bind(chan)
+  func.done  = chan.done.bind(chan)
 
   // expose empty value
-  func.empty  = chan.empty;
+  func.empty  = chan.empty
 
   // cross reference the channel object and function for internal use
-  func.__chan = chan;
-  chan.func   = func;
+  func.__chan = chan
+  chan.func   = func
 
-  return func;
+  return func
 }
 
 /**
@@ -59,39 +59,39 @@ function make() {
  * @api public
  */
 function select(/*channels...*/) {
-  var selectCh = make();
-  var chans    = [].slice.call(arguments, 0);
+  var selectCh = make()
+  var chans    = [].slice.call(arguments, 0)
 
-  var full = chans.filter(function(ch) { return ch.__chan.items.length > 0; });
+  var full = chans.filter(function(ch) { return ch.__chan.items.length > 0 })
 
   // define get callback
   var get = function(err, value) {
-    var args = arguments;
-    var ch   = lastCalled;
+    var args = arguments
+    var ch   = lastCalled
 
     // remove get callback from all selected channels
-    chans.forEach(function(ch) { ch.__chan.removeGet(get); });
+    chans.forEach(function(ch) { ch.__chan.removeGet(get) })
 
     // add temporary selected yieldable function
     ch.selected = function(cb) {
-      delete ch.selected;
-      cb.apply(null, args);
-    };
+      delete ch.selected
+      cb.apply(null, args)
+    }
 
     // added the selected channel to the select channel
-    selectCh(null, ch);
-    selectCh.close();
-  };
+    selectCh(null, ch)
+    selectCh.close()
+  }
 
   if (full.length > 1) {
     // multiple channels with waiting values, pick one at random
-    full[Math.floor(Math.random() * full.length)](get);
+    full[Math.floor(Math.random() * full.length)](get)
   } else {
     // add get callback to all channels
-    chans.forEach(function(ch) { ch(get); });
+    chans.forEach(function(ch) { ch(get) })
   }
 
-  return selectCh;
+  return selectCh
 }
 
 /**
@@ -101,11 +101,11 @@ function select(/*channels...*/) {
  * @api priate
  */
 function Channel(buffer) {
-  this.queue    = [];
-  this.items    = [];
-  this.isClosed = false;
-  this.isDone   = false;
-  this.empty    = {};
+  this.queue    = []
+  this.items    = []
+  this.isClosed = false
+  this.isDone   = false
+  this.empty    = {}
 }
 
 /**
@@ -116,11 +116,11 @@ function Channel(buffer) {
  */
 Channel.prototype.get = function(cb){
   if (this.done()) {
-    this.callEmpty(cb);
+    this.callEmpty(cb)
   } else if (this.items.length > 0) {
-    this.call(cb, this.items.shift());
+    this.call(cb, this.items.shift())
   } else {
-    this.queue.push(cb);
+    this.queue.push(cb)
   }
 }
 
@@ -132,11 +132,11 @@ Channel.prototype.get = function(cb){
  */
 
 Channel.prototype.removeGet = function(cb) {
-  var idx = this.queue.indexOf(cb);
+  var idx = this.queue.indexOf(cb)
   if (idx > -1) {
-    this.queue.splice(idx, 1);
+    this.queue.splice(idx, 1)
   }
-};
+}
 
 /**
  * Add `val` to the channel.
@@ -146,13 +146,13 @@ Channel.prototype.removeGet = function(cb) {
  */
 Channel.prototype.add = function(val){
   if (this.isClosed) {
-    throw new Error('Cannot add to closed channel');
+    throw new Error('Cannot add to closed channel')
   } else if (this.queue.length > 0) {
-    this.call(this.queue.shift(), val);
+    this.call(this.queue.shift(), val)
   } else {
-    this.items.push(val);
+    this.items.push(val)
   }
-};
+}
 
 /**
  * Invoke `cb` with `val` facilitate both
@@ -164,14 +164,14 @@ Channel.prototype.add = function(val){
  * @api private
  */
 Channel.prototype.call = function(cb, val) {
-  lastCalled = this.func;
+  lastCalled = this.func
   if (val instanceof Error) {
-    cb(val);
+    cb(val)
   } else {
-    cb(null, val);
+    cb(null, val)
   }
-  this.done();
-};
+  this.done()
+}
 
 /**
  * Invoke `cb` callback with the empty value.
@@ -180,8 +180,8 @@ Channel.prototype.call = function(cb, val) {
  * @api private
  */
 Channel.prototype.callEmpty = function(cb) {
-  this.call(cb, this.empty);
-};
+  this.call(cb, this.empty)
+}
 
 /**
  * Prevennt future values from being added to
@@ -191,9 +191,9 @@ Channel.prototype.callEmpty = function(cb) {
  * @api public
  */
 Channel.prototype.close = function() {
-  this.isClosed = true;
-  return this.done();
-};
+  this.isClosed = true
+  return this.done()
+}
 
 /**
  * Check to see if the channel is done and
@@ -204,10 +204,10 @@ Channel.prototype.close = function() {
  */
 Channel.prototype.done = function() {
   if (!this.isDone && this.isClosed && this.items.length === 0) {
-    this.isDone = true;
+    this.isDone = true
     // call each pending callback with the empty value
-    this.queue.forEach(function(cb) { this.callEmpty(cb); }, this);
+    this.queue.forEach(function(cb) { this.callEmpty(cb) }, this)
   }
 
-  return this.isDone;
-};
+  return this.isDone
+}
