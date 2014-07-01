@@ -1,22 +1,28 @@
 'use strict';
 
-var make
-  , Channel
-  , lastCalled;
+/**
+ * Expose `make`.
+ */
+module.exports = make;
+
+/**
+ * Expose `select`.
+ */
+module.exports.select = select;
+
+
+var lastCalled;
 
 /**
  * Make a channel.
  *
- * @param {Function|Object} [empty]
  * @return {Function}
  * @api public
  */
+function make() {
+  var chan = new Channel();
 
-make = function make(empty) {
-  var chan = new Channel(empty)
-    , func;
-
-  func = function(a, b) {
+  var func = function(a, b) {
     // yielded
     if (typeof a === 'function') {
       return chan.get(a);
@@ -37,24 +43,31 @@ make = function make(empty) {
 
   // expose empty value
   func.empty  = chan.empty;
-  
+
   // cross reference the channel object and function for internal use
   func.__chan = chan;
   chan.func   = func;
 
   return func;
-};
+}
 
-make.select = function select(/*channels...*/) {
-  var selectCh = make()
-    , chans = [].slice.call(arguments, 0)
-    , full = chans.filter(function(ch) { return ch.__chan.items.length > 0; })
-    , get;
+/**
+ * Return the first of the given channels with a value.
+ *
+ * @param {Function} channels...
+ * @return {Function}
+ * @api public
+ */
+function select(/*channels...*/) {
+  var selectCh = make();
+  var chans    = [].slice.call(arguments, 0);
+
+  var full = chans.filter(function(ch) { return ch.__chan.items.length > 0; });
 
   // define get callback
-  get = function(err, value) {
-    var args = arguments
-      , ch   = lastCalled;
+  var get = function(err, value) {
+    var args = arguments;
+    var ch   = lastCalled;
 
     // remove get callback from all selected channels
     chans.forEach(function(ch) { ch.__chan.removeGet(get); });
@@ -79,7 +92,7 @@ make.select = function select(/*channels...*/) {
   }
 
   return selectCh;
-};
+}
 
 /**
  * Initialize a `Channel`.
@@ -87,22 +100,13 @@ make.select = function select(/*channels...*/) {
  * @param {Function|Object} [empty=Object]
  * @api priate
  */
-
-Channel = function Channel(empty) {
-  var EmptyCtor;
-  
+function Channel(buffer) {
   this.queue    = [];
   this.items    = [];
   this.isClosed = false;
   this.isDone   = false;
-  
-  if (typeof empty !== 'object') {
-    EmptyCtor = typeof empty === 'function' ? empty : Object;
-    empty = new EmptyCtor();
-  }
-
-  this.empty = empty;
-};
+  this.empty    = {};
+}
 
 /**
  * Get an item with `cb`.
@@ -110,7 +114,6 @@ Channel = function Channel(empty) {
  * @param {Function} cb
  * @api private
  */
-
 Channel.prototype.get = function(cb){
   if (this.done()) {
     this.callEmpty(cb);
@@ -119,7 +122,7 @@ Channel.prototype.get = function(cb){
   } else {
     this.queue.push(cb);
   }
-};
+}
 
 /**
  * Remove `cb` from the queue.
@@ -141,7 +144,6 @@ Channel.prototype.removeGet = function(cb) {
  * @param {Mixed} val
  * @api private
  */
-
 Channel.prototype.add = function(val){
   if (this.isClosed) {
     throw new Error('Cannot add to closed channel');
@@ -161,7 +163,6 @@ Channel.prototype.add = function(val){
  * @param {Mixed} val
  * @api private
  */
-
 Channel.prototype.call = function(cb, val) {
   lastCalled = this.func;
   if (val instanceof Error) {
@@ -178,7 +179,6 @@ Channel.prototype.call = function(cb, val) {
  * @param {Function} cb
  * @api private
  */
-
 Channel.prototype.callEmpty = function(cb) {
   this.call(cb, this.empty);
 };
@@ -190,7 +190,6 @@ Channel.prototype.callEmpty = function(cb) {
  * @return {Boolean}
  * @api public
  */
-
 Channel.prototype.close = function() {
   this.isClosed = true;
   return this.done();
@@ -203,7 +202,6 @@ Channel.prototype.close = function() {
  * @return {Boolean}
  * @api private
  */
-
 Channel.prototype.done = function() {
   if (!this.isDone && this.isClosed && this.items.length === 0) {
     this.isDone = true;
@@ -213,10 +211,3 @@ Channel.prototype.done = function() {
 
   return this.isDone;
 };
-
-/**
- * Expose `make()`.
- */
-
-module.exports = make;
-

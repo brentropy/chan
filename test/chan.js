@@ -1,67 +1,17 @@
 /* global describe:true, beforeEach:true, it:true */
 'use strict';
 
-var chan   = require('../chan')
-  , expect = require('expect.js')
-  , fs     = require('fs');
+var chan   = require('../chan');
+var expect = require('expect.js');
+var fs     = require('fs');
 
 describe('Channel make', function() {
-  
+
   it(
     'should return a channel function',
     function() {
       var ch = chan();
       expect(ch).to.be.a(Function);
-    }
-  );
-
-  it(
-    'should optionally accept a constructor to be used for the empty value',
-    function() {
-      var ctors = [
-        Object,
-        Array,
-        String,
-        Number,
-        Function,
-        RegExp
-      ];
-      ctors.forEach(function(Ctor) {
-        expect(chan(Ctor).empty).to.be.a(Ctor);
-      });
-    }
-  );
-
-  it(
-    'should optionally accept an object to be used for the empty value',
-    function() {
-      var objects = [
-        {},
-        [],
-        new Buffer(0)
-      ];
-      objects.forEach(function(object) {
-        expect(chan(object).empty).to.be(object);
-      });
-    }
-  );
-
-  it(
-    'should not use a primitive for the empty value',
-    function() {
-      var primitives = [
-        undefined,
-        null,
-        true,
-        false,
-        4.7,
-        47,
-        'foo',
-        NaN
-      ];
-      primitives.forEach(function(primitive) {
-        expect(chan(primitive)).not.to.be(primitive);
-      });
     }
   );
 
