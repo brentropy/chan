@@ -1,8 +1,8 @@
 {
   "name": "chan",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A go style channel implementation that works nicely with co",
-  "main": "chan.js",
+  "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha"
   },

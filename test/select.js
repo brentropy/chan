@@ -1,7 +1,7 @@
 /* jshint loopfunc:true */
 /* global describe:true, beforeEach:true, afterEach:true, it:true */
 
-var chan   = require('../chan')
+var chan   = require('..')
 var expect = require('expect.js')
 
 describe('Channel select', function() {

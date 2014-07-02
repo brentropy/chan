@@ -1,6 +1,6 @@
 /* global describe:true, beforeEach:true, it:true */
 
-var chan   = require('../chan')
+var chan   = require('..')
 var expect = require('expect.js')
 
 describe('A closed channel', function() {
