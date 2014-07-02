@@ -1,27 +1,25 @@
 // jshint esnext:true
-'use strict';
 
 var request = require('superagent')
-  , chan    = require('../chan')
-  , co      = require('co')
-  , urls;
+var chan    = require('..')
+var co      = require('co')
 
-urls = [
+var urls = [
   'http://google.com',
   'http://medium.com',
   'http://segment.io',
   'http://cloudup.com'
-];
+]
 
 co(function *() {
   var ch = chan()
-    , res;
+    , res
 
   urls.forEach(function(url) {
-    request.get(url, ch);
-  });
+    request.get(url, ch)
+  })
 
   while ((res = yield ch)) {
-    console.log(res.status);
+    console.log(res.status)
   }
-})();
+})()

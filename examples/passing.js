@@ -1,24 +1,23 @@
 // jshint esnext:true
-'use strict';
 
-var chan = require('../chan')
-  , co   = require('co')
-  , wait = require('co-wait')
-  , ch   = chan();
+var chan = require('..')
+var co   = require('co')
+var wait = require('co-wait')
+var ch   = chan()
 
 co(function *() {
-  var n;
-  
+  var n
+
   while ((n = yield ch)) {
-    console.log(n);
+    console.log(n)
   }
-})();
+})()
 
 co(function *() {
-  var n = 50;
-  
+  var n = 50
+
   while (n-- > 0) {
-    yield wait(100);
-    ch(n);
+    yield wait(100)
+    ch(n)
   }
-})();
+})()

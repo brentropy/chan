@@ -1,28 +1,25 @@
 // jshint esnext:true
-'use strict';
 
 var fs    = require('fs')
-  , chan  = require('../chan')
-  , co    = require('co')
-  , split = require('split');
+var chan  = require('..')
+var co    = require('co')
+var split = require('split')
 
 co(function *() {
-  var ch = chan(new Buffer(0));
+  var ch = chan()
 
   fs.createReadStream(__dirname + '/../README.markdown')
     .pipe(split())
     .on('data',  ch)
     .on('error', ch)
-    .on('end',   ch.close);
+    .on('end',   ch.close)
 
   while (!ch.done()) {
-    try {
-      console.log('Stream yielded: ' + String(yield ch));
-    } catch(err) {
-      console.log('Stream error:' + err.message);
+    var val = yield ch
+    if (val !== ch.empty) {
+      console.log('Stream yielded: ' + String(yield ch))
     }
   }
 
-  console.log('Stream ended');
-})();
-
+  console.log('Stream ended')
+})()
