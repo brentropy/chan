@@ -6,20 +6,22 @@ var expect = require('expect.js')
 describe('A closed channel', function() {
 
   it(
-    'should throw an error when attempting to add a value',
+    'should yield an error when attempting to add a value',
     function() {
       var ch = chan()
       ch.close()
-      expect(function() { ch('foo') }).to.throwError()
+      ch('foo')(function(err) {
+        expect(err).to.be.an(Error)
+      })
     }
   )
 
-  describe('that is not empty', function() {
+  describe('that is has items in the buffer', function() {
 
     it(
       'should return `false` when the `done()` method is called',
       function() {
-        var ch = chan()
+        var ch = chan(1)
         ch('foo')
         ch.close()
         expect(ch.done()).to.be(false)
