@@ -15,7 +15,7 @@ co(function *() {
   var ch = chan()
     , res
 
-  urls.forEach(function(url) {
+  urls.forEach(function (url) {
     request.get(url, ch)
   })
 

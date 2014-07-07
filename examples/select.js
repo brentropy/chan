@@ -14,8 +14,8 @@ co(function *() {
     ch2 = chan()
 
     // add a value on each channel after a random amout of time
-    setTimeout(function() { ch1('ch1') }, Math.random() * 100 | 0)
-    setTimeout(function() { ch2('ch2') }, Math.random() * 100 | 0)
+    setTimeout(function () { ch1('ch1') }, Math.random() * 100 | 0)
+    setTimeout(function () { ch2('ch2') }, Math.random() * 100 | 0)
 
     // will block until there is data on either ch1 or ch2,
     // and will return the channel with data

@@ -4,7 +4,7 @@
 var chan   = require('..')
 var expect = require('expect.js')
 
-describe('A unbuffered channel', function() {
+describe('A unbuffered channel', function () {
 
   it(
     'should not call the added callback until the value is removed',
@@ -28,7 +28,7 @@ describe('A unbuffered channel', function() {
 
 })
 
-describe('A buffered channel', function() {
+describe('A buffered channel', function () {
 
   it(
     'should pull values from the buffer when yielded',
@@ -48,17 +48,17 @@ describe('A buffered channel', function() {
     }
   )
 
-  describe('with a non-full buffer', function() {
+  describe('with a non-full buffer', function () {
 
     it(
       'should call added callback as soon as it is given to the returned thunk',
-      function(done) {
+      function (done) {
         var buffer = 3
         var ch = chan(buffer)
         var called = 0
         var added = 0
         while (++added <= buffer + 10) {
-          ch(added)(function(err) {
+          ch(added)(function (err) {
             called++
           })
         }
@@ -71,11 +71,11 @@ describe('A buffered channel', function() {
 
   })
 
-  describe('with a full buffer', function() {
+  describe('with a full buffer', function () {
 
     it(
       'should not add another value untill a value has been removed',
-      function(done) {
+      function (done) {
         var ch = chan(1)
         var cbCalled = false
         ch('foo')
