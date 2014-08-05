@@ -13,7 +13,7 @@ var urls = [
 
 co(function *() {
   var ch = chan()
-    , res
+  var res
 
   urls.forEach(function (url) {
     request.get(url, ch)
