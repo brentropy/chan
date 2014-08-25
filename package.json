@@ -4,7 +4,7 @@
   "description": "A go style channel implementation that works nicely with co",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
