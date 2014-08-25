@@ -4,6 +4,7 @@
   "description": "A go style channel implementation that works nicely with co",
   "main": "index.js",
   "scripts": {
+    "coveralls": "cat coverage/lcov.info | coveralls",
     "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
@@ -39,6 +40,7 @@
   "devDependencies": {
     "co": "^3.0.6",
     "co-wait": "0.0.0",
+    "coveralls": "^2.11.1",
     "expect.js": "^0.3.1",
     "mocha": "^1.20.1",
     "should": "^4.0.4",

@@ -6,6 +6,7 @@ works well with [co](https://github.com/visionmedia/co).
 [![Build Status](https://travis-ci.org/brentburgoyne/chan.png)](https://travis-ci.org/brentburgoyne/chan)
 [![Code Climate](https://codeclimate.com/github/brentburgoyne/chan.png)](https://codeclimate.com/github/brentburgoyne/chan)
 [![Dependency Status](https://gemnasium.com/brentburgoyne/chan.png)](https://gemnasium.com/brentburgoyne/chan)
+[![Coverage Status](https://coveralls.io/repos/brentburgoyne/chan.png)](https://coveralls.io/r/brentburgoyne/chan)
 
 ## Features
 
