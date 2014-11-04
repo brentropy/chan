@@ -3,9 +3,9 @@
 A [golang](http://golang.org) like channel implementation for JavaScript that
 works well with [co](https://github.com/visionmedia/co).
 
-[![Build Status](https://travis-ci.org/brentburgoyne/chan.png)](https://travis-ci.org/brentburgoyne/chan)
-[![Code Climate](https://codeclimate.com/github/brentburgoyne/chan.png)](https://codeclimate.com/github/brentburgoyne/chan)
-[![Dependency Status](https://gemnasium.com/brentburgoyne/chan.png)](https://gemnasium.com/brentburgoyne/chan)
+[![Build Status](https://travis-ci.org/brentburg/chan.png)](https://travis-ci.org/brentburg/chan)
+[![Code Climate](https://codeclimate.com/github/brentburg/chan.png)](https://codeclimate.com/github/brentburg/chan)
+[![Dependency Status](https://gemnasium.com/brentburg/chan.png)](https://gemnasium.com/brentburg/chan)
 
 ## Features
 
