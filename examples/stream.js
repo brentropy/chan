@@ -8,7 +8,7 @@ var split = require('split')
 co(function *() {
   var ch = chan()
 
-  fs.createReadStream(__dirname + '/../README.markdown')
+  fs.createReadStream(__dirname + '/../README.md')
     .pipe(split())
     .on('data',  ch)
     .on('error', ch)

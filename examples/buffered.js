@@ -21,8 +21,3 @@ co(function *() {
   }
   ch.close()
 })()
-
-var response = chan.alts(
-  chan.async(request.get, 'http://google.com/'),
-  chan.timeout(500)
-)
