@@ -3,7 +3,6 @@
 var request = require('superagent')
 var chan    = require('..')
 var co      = require('co')
-var wait    = require('co-wait')
 
 var urls = [
   'http://google.com',
@@ -26,7 +25,7 @@ co(function *() {
 co(function *() {
   while (!ch.done()) {
     yield ch
-    yield wait(1000)
+    yield chan.timeout(1000)
     console.log('Channel yielded')
   }
 })()

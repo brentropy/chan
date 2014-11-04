@@ -2,7 +2,6 @@
 
 var chan = require('..')
 var co   = require('co')
-var wait = require('co-wait')
 var ch   = chan()
 
 co(function *() {
@@ -20,7 +19,7 @@ co(function *() {
   var n = 10
 
   while (n-- > 0) {
-    yield wait(100)
+    yield chan.timeout(100)
     try {
       ch(n)
     } catch(err) {

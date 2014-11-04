@@ -2,13 +2,12 @@
 
 var chan = require('..')
 var co   = require('co')
-var wait = require('co-wait')
 var ch   = chan(5)
 
 co(function *() {
   var n
   while (!ch.done()) {
-    yield wait(100)
+    yield chan.timeout(100)
     console.log('<-- ' + (yield ch))
   }
 })()
