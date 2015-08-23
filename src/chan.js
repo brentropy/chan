@@ -1,20 +1,11 @@
+import {blockingChannel, slidingChannel, droppingChannel} from './factory'
 import Channel from './channel'
-import {BufferBlocking, BufferSliding, BufferDropping} from './buffer'
+import timeout from './timeout'
 
-function chan (size) {
-  return new Channel(new BufferBlocking(size))
-}
-
-function sliding (size) {
-  return new Channel(new BufferSliding(size))
-}
-
-function dropping (size) {
-  return new Channel(new BufferDropping(size))
-}
-
-chan.sliding = sliding
-chan.dropping = dropping
+const chan = blockingChannel
+chan.sliding = slidingChannel
+chan.dropping = droppingChannel
 chan.Channel = Channel
+chan.timeout = timeout
 
 export default chan
