@@ -7,13 +7,12 @@ export default class Channel {
 
   pendingPuts = []
   pendingTakes = []
-  values = []
   isClosed = false
   isDone = false
   empty = {}
 
-  constructor (bufferSize) {
-    this.bufferSize = parseInt(bufferSize, 10) || 0
+  constructor (buffer) {
+    this.buffer = buffer
   }
 
   then (onFulfilled, onRejected) {
@@ -24,7 +23,7 @@ export default class Channel {
     const deferred = new DeferredTake()
     if (this.done()) {
       this.resolveEmpty(deferred)
-    } else if (this.values.length > 0 || this.pendingPuts.length > 0) {
+    } else if (this.buffer.length > 0 || this.pendingPuts.length > 0) {
       this.resolve(deferred, this.nextValue())
     } else {
       this.pendingTakes.push(deferred)
@@ -41,9 +40,9 @@ export default class Channel {
 
   nextValue () {
     if (this.pendingPuts.length > 0) {
-      this.values.push(this.pendingPuts.shift().add())
+      this.buffer.push(this.pendingPuts.shift().add())
     }
-    return this.values.shift()
+    return this.buffer.shift()
   }
 
   put (value) {
@@ -52,9 +51,7 @@ export default class Channel {
       deferred.reject(new Error(CLOSED_ERRROR_MSG))
     } else if (this.pendingTakes.length > 0) {
       this.resolve(this.pendingTakes.shift(), deferred.put())
-    } else if (this.values.length < this.bufferSize) {
-      this.values.push(deferred.put())
-    } else {
+    } else if (!this.buffer.push(deferred.put.bind(deferred))) {
       this.pendingPuts.push(deferred)
     }
     return deferred.promise
@@ -80,7 +77,7 @@ export default class Channel {
   }
 
   done () {
-    if (!this.isDone && this.isClosed && this.values.length === 0) {
+    if (!this.isDone && this.isClosed && this.buffer.length === 0) {
       this.isDone = true
       this.pendingTakes.forEach(this.resolveEmpty, this)
     }
