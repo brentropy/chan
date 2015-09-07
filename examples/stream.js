@@ -17,7 +17,7 @@ co(function *() {
   while (!ch.done()) {
     var val = yield ch
     if (val !== ch.empty) {
-      console.log('Stream yielded: ' + String(yield ch))
+      console.log('Stream yielded: ' + val)
     }
   }
 
