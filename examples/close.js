@@ -13,7 +13,7 @@ co(function *() {
     }
   }
   console.log('Done!')
-})()
+})
 
 co(function *() {
   var n = 10
@@ -30,4 +30,4 @@ co(function *() {
       ch.close()
     }
   }
-})()
+})

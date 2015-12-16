@@ -22,4 +22,4 @@ co(function *() {
   }
 
   console.log('Stream ended')
-})()
+})

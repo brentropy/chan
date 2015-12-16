@@ -10,7 +10,7 @@ co(function *() {
   while ((n = yield ch)) {
     console.log(n)
   }
-})()
+})
 
 co(function *() {
   var n = 50
@@ -19,4 +19,4 @@ co(function *() {
     yield chan.timeout(100)
     ch(n)
   }
-})()
+})

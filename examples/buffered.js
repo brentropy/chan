@@ -10,7 +10,7 @@ co(function *() {
     yield chan.timeout(100)
     console.log('<-- ' + (yield ch))
   }
-})()
+})
 
 
 co(function *() {
@@ -20,4 +20,4 @@ co(function *() {
     console.log(n + ' -->')
   }
   ch.close()
-})()
+})

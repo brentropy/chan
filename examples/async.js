@@ -20,7 +20,7 @@ co(function *() {
     console.log('Response added to channel for: ' + urls[i])
   }
   ch.close()
-})()
+})
 
 co(function *() {
   while (!ch.done()) {
@@ -28,4 +28,4 @@ co(function *() {
     yield chan.timeout(1000)
     console.log('Channel yielded')
   }
-})()
+})
