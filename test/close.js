@@ -10,7 +10,7 @@ describe('A closed channel', function () {
     function () {
       var ch = chan()
       ch.close()
-      ch('foo')(function (err) {
+      ch('foo').catch(function (err) {
         expect(err).to.be.an(Error)
       })
     }

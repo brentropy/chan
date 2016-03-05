@@ -1,7 +1,7 @@
 # Chan
 
 A [golang](http://golang.org) like channel implementation for JavaScript that
-works well with [co](https://github.com/visionmedia/co).
+works well with `ES7 async & await` and [co](https://github.com/tj/co)..
 
 [![Build Status](https://travis-ci.org/brentburg/chan.png)](https://travis-ci.org/brentburg/chan)
 [![Code Climate](https://codeclimate.com/github/brentburgoyne/chan.png)](https://codeclimate.com/github/brentburgoyne/chan)
@@ -14,6 +14,7 @@ works well with [co](https://github.com/visionmedia/co).
 - Channels can be closed
 - API designed to work well with generators and co
 - Can be used without generators
+- API designed to work well with async&await
 - Channels can be selected similar to Go's select statement
 
 ## Installation
@@ -37,30 +38,26 @@ typeof ch // -> 'function'
 ### Sending values to the channel
 
 Values are added to the
-channel by calling the function with either `(value)` or `(error, value)`. The
-return value is a thunk (a function that take a node-style callback as its only
-argument). The callback given to the thunk is called once the value is added.
+channel by calling the function with either `(value)` or `(error, value)`.
+The return value is a Promise.
 
 ```js
-ch('foo')(function (err) {
-  if (err) {
-    // There was an error putting the value on the channel
-  } else {
-    // The value was successfully put on the channel
-  }
+ch('foo').then(function () {
+  // The value was successfully put on the channel
+}).catch(function (err) {
+  // There was an error putting the value on the channel
 })
 ```
 
 ### Receiving values from the channel
 
-Values are removed from the channel by calling it with a node-style callback as
-this first argument. When a value is available on the channel the callback is
-called with the value or error. In this case the channel itself can also be a
-thunk.
+Values are taken off the channel by resolving the channel promise repeatedly.
 
 ```js
-ch(function (err, val) {
-  // called when there is a value or error on the channel
+ch.then(function (val) {
+  // called when there is a value on the channel
+}).catch(function (err) {
+  // called when there is an error on the channel
 })
 ```
 
