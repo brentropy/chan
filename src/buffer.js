@@ -34,7 +34,7 @@ export class BufferSliding extends BufferBase {
   push (getValue) {
     this.values.push(getValue())
     if (this.values.length > this.size) {
-      this.values.unshift()
+      this.values.shift()
     }
     return true
   }

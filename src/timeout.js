@@ -1,10 +1,10 @@
 import {blockingChannel} from './factory'
 
-export function timeout (ms) {
+export default function timeout (ms) {
   const ch = blockingChannel()
   setTimeout(() => {
     try {
-      ch(true)
+      ch.put(true)
       ch.close()
     } catch (err) {}
   }, ms)

@@ -1,23 +1,14 @@
-export class DeferredBase {
+export default class Deferred {
   constructor () {
     this.promise = new Promise((resolve, reject) => {
       this.resolve = resolve
       this.reject = reject
     })
+    this.promise.deferred = this
   }
 }
 
-export class DeferredTake extends DeferredBase {
-  take (value) {
-    if (value instanceof Error) {
-      this.reject(value)
-    } else {
-      this.resolve(value)
-    }
-  } 
-}
-
-export class DeferredPut extends DeferredBase {
+export class DeferredPut extends Deferred {
   constructor (value) {
     super()
     this.value = value

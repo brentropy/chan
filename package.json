@@ -4,7 +4,7 @@
   "description": "A go style channel implementation that works nicely with co",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "babel-node --stage=0 node_modules/.bin/blue-tape src/**/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -37,12 +37,15 @@
   },
   "homepage": "https://github.com/brentburgoyne/chan",
   "devDependencies": {
+    "babel": "^5.8.21",
+    "blue-tape": "^0.1.10",
     "co": "^3.0.6",
     "expect.js": "^0.3.1",
     "mocha": "^1.20.1",
     "should": "^4.0.4",
     "sinon": "^1.10.3",
     "split": "^0.3.0",
-    "superagent": "^0.18.0"
+    "superagent": "^0.18.0",
+    "tap-dot": "^1.0.0"
   }
 }
