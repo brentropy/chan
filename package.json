@@ -37,12 +37,12 @@
   },
   "homepage": "https://github.com/brentburgoyne/chan",
   "devDependencies": {
-    "co": "^3.0.6",
+    "co": "^4.6.0",
     "expect.js": "^0.3.1",
-    "mocha": "^1.20.1",
-    "should": "^4.0.4",
-    "sinon": "^1.10.3",
-    "split": "^0.3.0",
-    "superagent": "^0.18.0"
+    "mocha": "^2.3.4",
+    "should": "^8.0.1",
+    "sinon": "^1.17.2",
+    "split": "^1.0.0",
+    "superagent": "^1.6.1"
   }
 }

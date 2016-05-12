@@ -13,16 +13,15 @@ describe('Async helper', function () {
   var fn
 
   beforeEach(function () {
-    ch = sinon.stub().returns(function (cb) { cb() })
+    ch = sinon.stub().returns(Promise.resolve())
     fn = sinon.stub().yields(err, val)
   })
 
   it(
     'should return a function with an arity of 1',
     function () {
-      var thunk = async(ch, fn)
-      thunk.should.be.a.Function
-      thunk.length.should.be.exactly(1)
+      var promise = async(ch, fn)
+      promise.should.be.an.instanceOf(Promise)
     }
   )
 
@@ -60,11 +59,11 @@ describe('Async helper', function () {
     'should call callback given to returned function',
     function (done) {
       var cb = sinon.spy()
-      async(ch, fn)(cb)
-      setImmediate(function () {
+      async(ch, fn).then(cb)
+      setTimeout(function () {
         cb.callCount.should.be.exactly(1)
         done()
-      })
+      }, 100)
     }
   )
 

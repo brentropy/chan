@@ -11,16 +11,16 @@ describe('A unbuffered channel', function () {
     function (done) {
       var ch = chan(0) // unbuffered
       var cbCalled = false
-      ch('foo')(function () {
+      ch('foo').then((function () {
         cbCalled = true
-      })
+      }))
       setImmediate(function () {
         expect(cbCalled).to.not.be.ok()
         ch(function (err, val) {
-          setImmediate(function () {
+          setTimeout(function () {
             expect(cbCalled).to.be.ok()
             done()
-          })
+          }, 100)
         })
       })
     }
@@ -58,14 +58,14 @@ describe('A buffered channel', function () {
         var called = 0
         var added = 0
         while (++added <= buffer + 10) {
-          ch(added)(function (err) {
+          ch(added).then(function () {
             called++
           })
         }
-        setImmediate(function () {
+        setTimeout(function () {
           expect(called).to.be(buffer)
           done()
-        })
+        }, 100)
       }
     )
 
@@ -79,16 +79,16 @@ describe('A buffered channel', function () {
         var ch = chan(1)
         var cbCalled = false
         ch('foo')
-        ch('bar')(function () {
+        ch('bar').then(function () {
           cbCalled = true
         })
         setImmediate(function () {
           expect(cbCalled).to.not.be.ok()
           ch(function (err, val) {
-            setImmediate(function () {
+            setTimeout(function () {
               expect(cbCalled).to.be.ok()
               done()
-            })
+            }, 100)
           })
         })
       }
@@ -98,16 +98,11 @@ describe('A buffered channel', function () {
       'should call cb with an error when the channel is closed before adding',
       function (done) {
         var ch = chan(0)
-        var cbCalled = false
-        ch('foo')(function (err) {
-          cbCalled = true
+        ch('foo').catch(function (err) {
           expect(err).to.be.an(Error)
-        })
-        ch.close()
-        setImmediate(function () {
-          expect(cbCalled).to.be.ok()
           done()
         })
+        ch.close()
       }
     )
 

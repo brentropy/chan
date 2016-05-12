@@ -22,4 +22,4 @@ co(function *() {
   while ((res = yield ch)) {
     console.log(res.status)
   }
-})()
+})
