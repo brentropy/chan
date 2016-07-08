@@ -1,30 +1,20 @@
-import Deferred from './deferred'
+import alts from './alts'
 
-function pairs ()
+const DEFAULT = {hasValues: () => false}
 
-export function select (channels...) {
-  const deferred = new Deferred()
-  const nonEmpty = channels.filter(channel => channel.hasValues())
-  const cancels = []
-  let remaining = channels.length
-
-  const take = channel => {
-    const [promise, cancel] = channel.cancelableTake()
-    cancels.push(cancel)  
-    promise.then(value => {
-      if (value === channel.empty && --remaining > 0) {
-        return
-      }
-      cancels.forEach(fn => fn())
-      deferred.resolve([channel, value])
-    })
+export default function select (...args) {
+  const handlers = new Map()
+  for (let i = 0, len = args.length; i < len; i += 2) {
+    if (args[i + 1]) {
+      handlers.set(args[i], args[i + 1])
+    } else {
+      handlers.set(DEFAULT, args[i])
+    }
   }
-
-  if (nonEmpty.length > 1) {
-    take(nonEmpty[Math.random() * nonEmpty.length | 0])
+  const channels = handlers.keys()
+  if (handlers.get(DEFAULT) && !channels.some(c => c.hasValues()).length) {
+    return Promise.resove(handlers.get(DEFAULT)())
   } else {
-    channels.forEach(take)
+    return alts(channels).then(([ch, val]) => handlers.get(ch)(val))
   }
-
-  return deferred.promise
 }
