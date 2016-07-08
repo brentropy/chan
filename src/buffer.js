@@ -1,12 +1,15 @@
 export class BufferBase {
-  values = []
-
   constructor (size) {
+    this.values = []
     this.size = parseInt(size, 10)
   }
 
   shift () {
     return this.values.shift()
+  }
+
+  hasValues () {
+    return this.values.length > 0
   }
 }
 

@@ -12,10 +12,9 @@ export class DeferredPut extends Deferred {
   constructor (value) {
     super()
     this.value = value
-  }
-
-  put () {
-    this.resolve()
-    return this.value
+    this.put = () => {
+      this.resolve()
+      return this.value
+    }
   }
 }
