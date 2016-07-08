@@ -4,8 +4,8 @@
   "description": "A go style channel implementation that works nicely with co",
   "main": "index.js",
   "scripts": {
-    "test": "eslint src && mocha --compilers js:babel-register 'src/test/*.test.js'",
-    "test-debug": "mocha debug --compilers js:babel-register 'src/test/*.test.js'"
+    "test": "eslint src test && mocha --compilers js:babel-register 'test/*.test.js'",
+    "test-debug": "mocha debug --compilers js:babel-register 'test/*.test.js'"
   },
   "repository": {
     "type": "git",
