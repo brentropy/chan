@@ -1,7 +1,7 @@
 export class BufferBase {
   constructor (size) {
     this.values = []
-    this.size = parseInt(size, 10)
+    this.size = parseInt(size, 10) || 0
   }
 
   shift () {
