@@ -2,8 +2,10 @@
   "name": "chan",
   "version": "0.6.1",
   "description": "A go style channel implementation that works nicely with co",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
+    "build": "babel src --out-dir lib",
+    "prepublish": "npm run build",
     "test": "eslint src test && mocha --compilers js:babel-register 'test/*.test.js'",
     "test-debug": "mocha debug --compilers js:babel-register 'test/*.test.js'"
   },
