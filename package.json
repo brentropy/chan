@@ -7,6 +7,7 @@
     "build": "tsc",
     "prepublish": "npm run build",
     "test": "npm run lint && npm run build && mocha 'dist/**/*.test.js'",
+    "debug": "npm run build && mocha debug --no-timeouts 'dist/**/*.test.js'",
     "lint": "tslint 'src/**/*.ts'"
   },
   "repository": {
@@ -43,7 +44,7 @@
   "homepage": "https://github.com/brentburgoyne/chan",
   "devDependencies": {
     "@types/node": "^6.0.52",
-    "mocha": "^2.5.3",
+    "mocha": "^3.1.0",
     "mochon": "^1.0.0",
     "sinon": "^1.17.4",
     "source-map-support": "^0.4.7",
