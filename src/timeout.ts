@@ -7,11 +7,15 @@ import {Channel} from './channel'
  */
 export function timeout (ms: number): Channel<null> {
   const ch = blockingChannel<null>()
-  setTimeout(() => {
-    try {
-      ch.put(null)
-      ch.close()
-    } catch (err) {}
-  }, ms)
+  setTimeout(
+    () => {
+      try {
+        ch.put(null)
+        ch.close()
+      // tslint:disable-next-line:no-empty
+      } catch (err) {}
+    },
+    ms
+  )
   return ch
 }

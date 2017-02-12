@@ -4,7 +4,7 @@ import {CanceledTakeError, ClosedTakeError, ClosedPutError} from './error'
 import {Queue} from './queue'
 
 export interface OutChannel<T> extends PromiseLike<T> {
-  take (): PromiseWithDeferred<T> 
+  take (): PromiseWithDeferred<T>
   cancelableTake (): [PromiseWithDeferred<T>, () => void]
   hasValues (): boolean
 }
@@ -89,7 +89,7 @@ export class Channel<T> implements InChannel<T>, OutChannel<T> {
    * promise will be rejected with a `ClosedPutError`.
    */
   public put (value: T): Promise<void> {
-    var deferred = new DeferredPut(value)
+    const deferred = new DeferredPut(value)
     if (this.isClosed) {
       deferred.reject(new ClosedPutError())
     } else if (this.pendingTakes.notEmpty()) {
@@ -107,9 +107,10 @@ export class Channel<T> implements InChannel<T>, OutChannel<T> {
    */
   public close (): void {
     this.isClosed = true
-    const err = new ClosedPutError() 
-    while (this.pendingPuts.notEmpty()) {
-      this.pendingTakes.shift().reject(err)
+    const err = new ClosedPutError()
+    let pendingPut
+    while (pendingPut = this.pendingPuts.shift()) {
+      pendingPut.reject(err)
     }
     this.done()
   }
@@ -120,15 +121,18 @@ export class Channel<T> implements InChannel<T>, OutChannel<T> {
     }
   }
 
-  private nextValue (): T {
-    if (this.pendingPuts.notEmpty()) {
-      this.buffer.push(this.pendingPuts.shift().put)
+  private nextValue (): T | undefined {
+    const pendingPut = this.pendingPuts.shift()
+    if (pendingPut) {
+      this.buffer.push(pendingPut.put)
     }
     return this.buffer.shift()
   }
 
-  private resolve (deferred: Deferred<T>, value: T): void {
-    deferred.resolve(value)
+  private resolve (deferred: Deferred<T> | undefined, value: T | undefined): void {
+    if (deferred && value) {
+      deferred.resolve(value)
+    }
     this.done()
   }
 
@@ -136,8 +140,9 @@ export class Channel<T> implements InChannel<T>, OutChannel<T> {
     if (!this.isDone && this.isClosed && !this.buffer.hasValues()) {
       this.isDone = true
       const err = new ClosedTakeError()
-      while (this.pendingTakes.notEmpty()) {
-        this.pendingTakes.shift().reject(err)
+      let pendingTake: Deferred<T> | undefined
+      while (pendingTake = this.pendingTakes.shift()) {
+        pendingTake.reject(err)
       }
     }
     return this.isDone

@@ -1,23 +1,23 @@
 import {Queue} from './queue'
 
 export interface IBuffer<T> {
-  shift (): T
+  shift (): T | undefined
   hasValues (): boolean
   push (getValue: () => T): boolean
 }
 
-abstract class BufferBase<T> implements IBuffer<T> {
+export abstract class BufferBase<T> implements IBuffer<T> {
   // TODO: Use ring buffer instead of queue
   protected values = new Queue<T>()
-  
+
   constructor (protected size: number) {}
 
-  public shift (): T {
+  public shift (): T | undefined {
     return this.values.shift()
   }
 
   public hasValues (): boolean {
-    return this.values.empty()
+    return this.values.notEmpty()
   }
 
   abstract push (getValue: () => T): boolean

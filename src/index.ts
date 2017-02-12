@@ -1,6 +1,6 @@
 import {Channel} from './channel'
 import {blockingChannel, slidingChannel, droppingChannel} from './factory'
-import {select} from './select'
+import {select, Selector} from './select'
 import {timeout} from './timeout'
 
 export = Object.assign(blockingChannel, {
@@ -8,5 +8,6 @@ export = Object.assign(blockingChannel, {
   dropping: droppingChannel,
   Channel,
   timeout,
-  select
+  select,
+  Selector
 })

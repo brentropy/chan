@@ -7,8 +7,12 @@ export class Queue<T> {
     this.items.push(value)
   }
 
-  public shift (): T {
-    return this.items.shift();
+  public shift (): T | undefined {
+    return this.items.shift()
+  }
+
+  public peek (): T | undefined {
+    return this.items[0]
   }
 
   public size (): number {
@@ -22,7 +26,7 @@ export class Queue<T> {
   public notEmpty (): boolean {
     return this.size() > 0
   }
-  
+
   public remove (value: T): boolean {
     const idx = this.items.indexOf(value)
     if (idx > -1) {

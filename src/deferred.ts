@@ -6,7 +6,7 @@ export class Deferred<T> {
   public promise: PromiseWithDeferred<T>
   public resolve: (value: T) => void
   public reject: (err: Error) => void
-  
+
   constructor () {
     this.promise = new PromiseWithDeferred((resolve, reject) => {
       this.resolve = resolve
@@ -22,7 +22,7 @@ export class DeferredPut<T> extends Deferred<void> {
   constructor (private value: T) {
     super()
     this.put = () => {
-      this.resolve(null)
+      this.resolve(undefined)
       return this.value
     }
   }

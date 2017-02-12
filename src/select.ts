@@ -72,7 +72,7 @@ export class Selector implements PromiseLike<void> {
     return this.deferred.promise.then(onFulfilled, onRejected)
   }
 
-  private execute ():void {
+  private execute (): void {
     const channels = Array.from(this.handlers.keys())
     const nonEmpty = channels.filter(c => c.hasValues())
     if (this.defaultFn && nonEmpty.length === 0) {
