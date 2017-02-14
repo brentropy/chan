@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
-    "test": "npm run lint && npm run build && mocha 'dist/**/*.test.js'",
-    "debug": "npm run build && mocha debug --no-timeouts 'dist/**/*.test.js'",
+    "test": "npm run lint && npm run build && mocha --require source-map-support/register 'dist/**/*.test.js'",
+    "debug": "npm run build && mocha debug --require source-map-support/register --no-timeouts 'dist/**/*.test.js'",
     "lint": "tslint 'src/**/*.ts'"
   },
   "repository": {
