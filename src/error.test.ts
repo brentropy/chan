@@ -3,7 +3,7 @@ import * as sinon from 'sinon'
 import {describe, it, beforeEach, afterEach} from 'mocha'
 import {CanceledTakeError, ClosedTakeError, ClosedPutError} from './error'
 
-describe.only('Errors', () => {
+describe('Errors', () => {
   function errorTests (ErrorClass, name) {
     describe(name, () => {
       let error
