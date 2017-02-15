@@ -1,10 +1,14 @@
 {
   "name": "chan",
-  "version": "0.6.1",
-  "description": "A go style channel implementation that works nicely with co",
-  "main": "index.js",
+  "version": "1.0.0",
+  "description": "Go-like channels for TypeScript and JavaScript.",
+  "main": "out/src/index.js",
   "scripts": {
-    "test": "mocha"
+    "build": "tsc",
+    "prepublish": "npm run build",
+    "test": "npm run lint && npm run build && mocha --require source-map-support/register 'dist/**/*.test.js'",
+    "debug": "npm run build && mocha debug --require source-map-support/register --no-timeouts 'dist/**/*.test.js'",
+    "lint": "tslint 'src/**/*.ts'"
   },
   "repository": {
     "type": "git",
@@ -12,10 +16,12 @@
   },
   "keywords": [
     "async",
-    "go",
+    "await",
     "channel",
-    "co",
-    "generator"
+    "csp",
+    "buffer",
+    "golang",
+    "go"
   ],
   "author": "Brent Burgoyne",
   "contributors": [
@@ -37,12 +43,13 @@
   },
   "homepage": "https://github.com/brentburgoyne/chan",
   "devDependencies": {
-    "co": "^3.0.6",
-    "expect.js": "^0.3.1",
-    "mocha": "^1.20.1",
-    "should": "^4.0.4",
-    "sinon": "^1.10.3",
-    "split": "^0.3.0",
-    "superagent": "^0.18.0"
+    "@types/node": "^6.0.52",
+    "mocha": "^3.1.0",
+    "mochon": "^1.0.0",
+    "sinon": "^1.17.4",
+    "source-map-support": "^0.4.7",
+    "tslint": "^4.1.1",
+    "tslint-config-standard": "^2.0.0",
+    "typescript": "^2.1.4"
   }
 }

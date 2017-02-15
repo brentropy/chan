@@ -1,0 +1,15 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "module": "commonjs",
+    "outDir": "dist",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "types",
+    "target": "es6"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
